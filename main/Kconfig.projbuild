@@ -21,20 +21,20 @@ menu "Weather Station Configuration"
 
     config WIFI_SSID
         string "WiFi SSID"
-        default "your_wifi_ssid"
+        default "YOUR_WIFI_SSID"
         help
-            SSID of the WiFi network to connect to.
+            The SSID of the WiFi network to connect to.
 
     config WIFI_PASSWORD
         string "WiFi Password"
-        default "your_wifi_password"
+        default "YOUR_WIFI_PASSWORD"
         help
-            Password of the WiFi network.
-
-    config MQTT_BROKER_URL
-        string "MQTT Broker URL"
-        default "mqtt://192.168.1.100"
+            The password of the WiFi network to connect to.
+    
+    config MQTT_BROKER_IP
+        string "MQTT Broker IP"
+        default "192.168.1.173"
         help
-            URL of the MQTT broker (e.g., mqtt://192.168.1.100).
+            The IP of the MQTT broker to publish weather data to.
 
 endmenu

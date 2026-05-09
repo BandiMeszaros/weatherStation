@@ -3,11 +3,14 @@
 #include "freertos/FreeRTOS.h"
 #include "driver/i2c_master.h"
 #include "esp_err.h"
+#include "rom/cache.h"
 #include "sdkconfig.h"
+#include "weather_data.h"
 
 // Settings
 
-# define SENSOR_MEASUREMENT_INTERVAL_MS CONFIG_MEASUREMENT_INTERVAL_MS
+static const char *TAG = "WEATHER_DATA";
+
 
 i2c_master_bus_config_t bus_config = {
     .clk_source = I2C_CLK_SRC_DEFAULT,
@@ -26,14 +29,14 @@ i2c_device_config_t dev_cfg = {
     .scl_speed_hz = 400000,        // 400kHz
 };
 
-typedef struct {
-    float temperature;
-    float humidity;
-} sensor_data_t;
-
 i2c_master_dev_handle_t dev_handle;
 
 
+void i2c_master_init() {
+    ESP_ERROR_CHECK(i2c_new_master_bus(&bus_config, &bus_handle));
+    ESP_ERROR_CHECK(i2c_master_bus_add_device(bus_handle, &dev_cfg, &dev_handle));
+    ESP_LOGI(TAG, "I2C master initialized");
+}
 sensor_data_t convert_gxht30_data(uint8_t *rx_data) {
     // Temperature is in bytes 0 (MSB) and 1 (LSB)
     uint16_t raw_temp = (rx_data[0] << 8) | rx_data[1];
@@ -48,8 +51,8 @@ sensor_data_t convert_gxht30_data(uint8_t *rx_data) {
     if (humidity > 100) humidity = 100;
     if (humidity < 0) humidity = 0;
 
-    ESP_LOGI("GXHT30", "Temperature: %.2f °C\n", temperature);
-    ESP_LOGI("GXHT30", "Humidity: %.2f %%\n", humidity);
+    ESP_LOGI(TAG, "Temperature: %.2f °C\n", temperature);
+    ESP_LOGI(TAG, "Humidity: %.2f %%\n", humidity);
 
     sensor_data_t results;
     results.temperature = temperature;
@@ -57,22 +60,13 @@ sensor_data_t convert_gxht30_data(uint8_t *rx_data) {
     return results;
 }
 
-void app_main(void)
-{
-    vTaskDelay(pdMS_TO_TICKS(10));
 
-    ESP_ERROR_CHECK(i2c_new_master_bus(&bus_config, &bus_handle));
-    ESP_ERROR_CHECK(i2c_master_bus_add_device(bus_handle, &dev_cfg, &dev_handle));
-    while (1) {
-        uint8_t cmd[] = {0x2C, 0x06};
-        ESP_ERROR_CHECK(i2c_master_transmit(dev_handle, cmd, sizeof(cmd), -1));
-        vTaskDelay(pdMS_TO_TICKS(20));
-        // Reading back 6 bytes (Temperature MSB, LSB, CRC, Humidity MSB, LSB, CRC)
-        uint8_t rx_data[6];
-        ESP_ERROR_CHECK(i2c_master_receive(dev_handle, rx_data, sizeof(rx_data), -1));
-        convert_gxht30_data(rx_data);
-        vTaskDelay(pdMS_TO_TICKS(SENSOR_MEASUREMENT_INTERVAL_MS)); // Wait for the next measurement
-    }
-
-
+sensor_data_t get_weather_data() {
+    uint8_t cmd[] = {0x2C, 0x06};
+    ESP_ERROR_CHECK(i2c_master_transmit(dev_handle, cmd, sizeof(cmd), -1));
+    vTaskDelay(pdMS_TO_TICKS(20));
+    // Reading back 6 bytes (Temperature MSB, LSB, CRC, Humidity MSB, LSB, CRC)
+    uint8_t rx_data[6];
+    ESP_ERROR_CHECK(i2c_master_receive(dev_handle, rx_data, sizeof(rx_data), -1));
+    return convert_gxht30_data(rx_data);
 }
