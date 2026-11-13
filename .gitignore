@@ -66,3 +66,6 @@ dependencies.lock
 # Local project config: contains WiFi/MQTT credentials.
 # Use sdkconfig.defaults for values that should be shared.
 sdkconfig
+
+# Local secrets for scripts/apply_env.py (copy .env.example to .env)
+.env
