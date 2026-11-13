@@ -62,3 +62,7 @@ build/
 managed_components/
 dependencies.lock
 *.old
+
+# Local project config: contains WiFi/MQTT credentials.
+# Use sdkconfig.defaults for values that should be shared.
+sdkconfig

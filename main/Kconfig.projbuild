@@ -33,8 +33,22 @@ menu "Weather Station Configuration"
     
     config MQTT_BROKER_IP
         string "MQTT Broker IP"
-        default "192.168.1.173"
+        default "192.168.1.160"
         help
             The IP of the MQTT broker to publish weather data to.
+
+    config MQTT_USER
+        string "MQTT Username"
+        default ""
+        help
+            Username used to authenticate with the MQTT broker.
+            Leave empty to connect without a username.
+
+    config MQTT_PASSWORD
+        string "MQTT Password"
+        default ""
+        help
+            Password used to authenticate with the MQTT broker.
+            Leave empty to connect without a password.
 
 endmenu
