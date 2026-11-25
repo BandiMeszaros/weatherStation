@@ -138,9 +138,9 @@ void mqtt_send_weather_data(float temp, float hum) {
     // Create a JSON-like string
     snprintf(payload, sizeof(payload), "{\"temp\": %.2f, \"hum\": %.2f}", temp, hum);
 
-    // Publish to "weather" topic
-    ESP_LOGI(TAG, "Calling esp_mqtt_client_publish() topic='weather' payload='%s'", payload);
-    int msg_id = esp_mqtt_client_publish(global_client, "weather", payload, 0, 1, 0);
+    // Publish to the topic configured via CONFIG_MQTT_TOPIC (MQTT_TOPIC in .env)
+    ESP_LOGI(TAG, "Calling esp_mqtt_client_publish() topic='%s' payload='%s'", CONFIG_MQTT_TOPIC, payload);
+    int msg_id = esp_mqtt_client_publish(global_client, CONFIG_MQTT_TOPIC, payload, 0, 1, 0);
     if (msg_id != -1) {
         ESP_LOGI(TAG, "esp_mqtt_client_publish() OK, msg_id=%d", msg_id);
     } else {

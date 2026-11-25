@@ -51,4 +51,10 @@ menu "Weather Station Configuration"
             Password used to authenticate with the MQTT broker.
             Leave empty to connect without a password.
 
+    config MQTT_TOPIC
+        string "MQTT Topic"
+        default "indoor"
+        help
+            Topic the weather data is published to.
+
 endmenu
